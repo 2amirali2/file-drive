@@ -30,6 +30,7 @@ import { z } from "zod"
 import { useState } from "react"
 import { useToast } from "@/components/ui/use-toast"
 import { Loader2 } from "lucide-react"
+import { Doc } from "@/convex/_generated/dataModel"
 
 const formSchema = z.object({
   title: z.string().min(1).max(200),
@@ -63,24 +64,34 @@ export default function UploadButton() {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+
     console.log(values)
     if (!orgId) return
     const postUrl = await generateUploadUrl()
-    // Step 2: POST the file to the URL
+
+    const fileType =  values.file[0].type
+
     const result = await fetch(postUrl, {
       method: "POST",
-      headers: { "Content-Type": values.file[0].type },
+      headers: { "Content-Type": fileType },
       body: values.file[0],
     })
     const { storageId } = await result.json()
+
+    console.log(values.file[0].type)
+    const types = {
+      'image/png': 'image',
+      'image/webp': 'image',
+      'application/pdf': 'pdf',
+      'text/csv': 'csv'
+    } as Record<string, Doc<"files">["type"]>
 
     try {
       await createFile({
         name: values.title,
         fileId: storageId,
         orgId,
+        type: types[fileType]
       })
       form.reset()
 
