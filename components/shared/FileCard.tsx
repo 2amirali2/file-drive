@@ -19,12 +19,15 @@ function getFileUrl(fileId: Id<"_storage">): string {
 
 // d07920d6-4082-4614-bf45-4b8bbe769127
 
-const FileCard = ({ file }: { file: Doc<"files"> }) => {
+const FileCard = ({ file, favorites }: { file: Doc<"files">, favorites: Doc<"favorites">[] }) => {
   const typesIcons = {
     image: <ImageIcon />,
     pdf: <FileTextIcon />,
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>
+
+  const isFavorited = favorites.some((favorite) => favorite.fileId === file._id)
+  
   
   return (
     <Card>
@@ -35,7 +38,7 @@ const FileCard = ({ file }: { file: Doc<"files"> }) => {
           {file.name}
         </CardTitle>
         <div className="absolute top-2 right-2">
-          <FileCardAction file={file} />
+          <FileCardAction isFavorited={isFavorited} file={file} />
         </div>
       </CardHeader>
       <CardContent className="h-[200px] flex justify-center items-center">

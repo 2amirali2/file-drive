@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { DialogHeader } from "@/components/shared/dialog"
+import { DialogHeader } from "@/components/ui/dialog"
 import { api } from "@/convex/_generated/api"
 import {
   useOrganization,
@@ -13,7 +13,7 @@ import {
   DialogContent,
   DialogTitle,
   DialogDescription,
-} from "@/components/shared/dialog"
+} from "@/components/ui/dialog"
 import {
   Form,
   FormControl,
