@@ -13,15 +13,12 @@ export const generateUploadUrl = mutation(async (ctx) => {
   return await ctx.storage.generateUploadUrl()
 })
 
-async function hasAccessToOrg(
-  ctx: QueryCtx | MutationCtx,
-  orgId: string
-) {
+async function hasAccessToOrg(ctx: QueryCtx | MutationCtx, orgId: string) {
   const identity = await ctx.auth.getUserIdentity()
 
-    if (!identity) {
-      return null;
-    }
+  if (!identity) {
+    return null
+  }
   const user = await ctx.db
     .query("users")
     .withIndex("by_tokenIdentifier", (q) =>
@@ -34,11 +31,12 @@ async function hasAccessToOrg(
   }
 
   const hasAccess =
-    user.orgIds.includes(orgId) || user.tokenIdentifier.includes(orgId)
+    user.orgIds.some((item) => item.orgId === orgId) ||
+    user.tokenIdentifier.includes(orgId)
 
-    if(!hasAccess) {
-      return null;
-    }
+  if (!hasAccess) {
+    return null
+  }
 
   return { user }
 }
@@ -51,10 +49,7 @@ export const createFile = mutation({
     type: fileTypes,
   },
   async handler(ctx, args) {
-    const hasAccess = await hasAccessToOrg(
-      ctx,
-      args.orgId
-    )
+    const hasAccess = await hasAccessToOrg(ctx, args.orgId)
 
     if (!hasAccess) {
       throw new ConvexError("you do not have access to this org")
@@ -76,10 +71,7 @@ export const getFiles = query({
     favorites: v.optional(v.boolean()),
   },
   async handler(ctx, args) {
-    const hasAccess = await hasAccessToOrg(
-      ctx,
-      args.orgId
-    )
+    const hasAccess = await hasAccessToOrg(ctx, args.orgId)
 
     if (!hasAccess) {
       return []
@@ -110,7 +102,7 @@ export const getFiles = query({
         favorites.some((favorite) => favorite.fileId === file._id)
       )
     }
-    return files;
+    return files
   },
 })
 
@@ -123,6 +115,12 @@ export const deleteFile = mutation({
 
     if (!access) {
       throw new ConvexError("you do not have access to this org")
+    }
+
+    const isAdmin = access.user.orgIds.find(org => org.orgId === access.file.orgId)?.role === "admin";
+
+    if(!isAdmin) {
+      throw new ConvexError("you have no admin access")
     }
 
     await ctx.db.delete(args.fileId)
@@ -170,17 +168,19 @@ export const getAllFavorites = query({
     const hasAccess = await hasAccessToOrg(ctx, args.orgId)
 
     if (!hasAccess) {
-      return [];
+      return []
     }
 
     const favorites = await ctx.db
       .query("favorites")
-      .withIndex("by_userId_orgId_fileId", (q) => q.eq('userId', hasAccess.user._id).eq("orgId", args.orgId))
+      .withIndex("by_userId_orgId_fileId", (q) =>
+        q.eq("userId", hasAccess.user._id).eq("orgId", args.orgId)
+      )
       .collect()
 
-      return favorites
-    }
-  })
+    return favorites
+  },
+})
 
 async function hasAccessToFile(
   ctx: QueryCtx | MutationCtx,
@@ -192,10 +192,7 @@ async function hasAccessToFile(
     return null
   }
 
-  const hasAccess = await hasAccessToOrg(
-    ctx,
-    file.orgId
-  )
+  const hasAccess = await hasAccessToOrg(ctx, file.orgId)
 
   if (!hasAccess) {
     return null

@@ -27,6 +27,7 @@ import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Doc } from "@/convex/_generated/dataModel"
 import { useToast } from "../ui/use-toast"
+import { Protect } from "@clerk/nextjs"
 
 const FileCardAction = ({
   file,
@@ -94,13 +95,15 @@ const FileCardAction = ({
               </div>
             )}
           </DropdownMenuItem>
+          {/* <Protect role="org:admin" fallback={<></>}> */}
           <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setIsConfirmOpen(true)}
-            className="flex gap-1 text-red-600 items-center cursor-pointer"
-          >
-            <TrashIcon className="w-4 h-4" /> Delete
-          </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => setIsConfirmOpen(true)}
+              className="flex gap-1 text-red-600 items-center cursor-pointer"
+            >
+              <TrashIcon className="w-4 h-4" /> Delete
+            </DropdownMenuItem>
+          {/* </Protect> */}
         </DropdownMenuContent>
       </DropdownMenu>
     </>
