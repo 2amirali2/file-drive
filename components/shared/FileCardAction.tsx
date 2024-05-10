@@ -9,7 +9,6 @@ import {
   FileIcon,
   MoreVertical,
   StarHalf,
-  StarHalfIcon,
   StarIcon,
   TrashIcon,
   UndoIcon,
@@ -25,12 +24,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useState } from "react"
-import { useMutation, useQuery } from "convex/react"
+import { useMutation } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Doc } from "@/convex/_generated/dataModel"
 import { useToast } from "../ui/use-toast"
 import { Protect } from "@clerk/nextjs"
-import { Button } from "../ui/button"
+import { getFileUrl } from "./FileCard"
+
 
 const FileCardAction = ({
   file,
@@ -101,11 +101,11 @@ const FileCardAction = ({
           >
             {isFavorited ? (
               <div className="flex gap-1 items-center cursor-pointer">
-                <StarHalf className="w-4 h-4" /> Unfavorite
+                <StarIcon className="w-4 h-4" /> Unfavorite
               </div>
             ) : (
               <div className="flex gap-1 items-center cursor-pointer">
-                <StarIcon className="w-4 h-4" /> Favorite
+                <StarHalf className="w-4 h-4" /> Favorite
               </div>
             )}
           </DropdownMenuItem>

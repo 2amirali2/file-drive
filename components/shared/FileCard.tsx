@@ -17,7 +17,7 @@ import { useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { formatRelative, subDays, formatDistance, format } from "date-fns"
 
-function getFileUrl(fileId: Id<"_storage">): string {
+export function getFileUrl(fileId: Id<"_storage">): string {
   return `${process.env.NEXT_PUBLIC_CONVEX_URL}/api/storage/${fileId}`
 }
 
@@ -25,10 +25,8 @@ function getFileUrl(fileId: Id<"_storage">): string {
 
 const FileCard = ({
   file,
-  favorites,
 }: {
-  file: Doc<"files">
-  favorites: Doc<"favorites">[]
+  file: Doc<"files"> & { isFavorited: boolean }
 }) => {
   const typesIcons = {
     image: <ImageIcon />,
@@ -36,7 +34,7 @@ const FileCard = ({
     csv: <GanttChartIcon />,
   } as Record<Doc<"files">["type"], ReactNode>
 
-  const isFavorited = favorites.some((favorite) => favorite.fileId === file._id)
+  // const isFavorited = favorites.some((favorite) => favorite.fileId === file._id)
 
   const userProfile = useQuery(api.users.getUserProfile, {
     userId: file.userId,
@@ -53,7 +51,7 @@ const FileCard = ({
           </div>
         </CardTitle>
         <div className="absolute top-2 right-2">
-          <FileCardAction isFavorited={isFavorited} file={file} />
+          <FileCardAction isFavorited={file.isFavorited} file={file} />
         </div>
       </CardHeader>
       <CardContent className="h-[200px] flex justify-center items-center">
