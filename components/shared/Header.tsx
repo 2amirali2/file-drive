@@ -1,8 +1,10 @@
 import {
   OrganizationSwitcher,
+  SignedIn,
   SignedOut,
   SignInButton,
   UserButton,
+  useSession,
 } from "@clerk/nextjs"
 import { Button } from "../ui/button"
 import Image from "next/image"
@@ -21,9 +23,11 @@ const Header = () => {
           />
           File Drive
         </Link>
-        <Button variant={"outline"}>
-          <Link href={"/dashboard/files"}>Your Files</Link>
-        </Button>
+        <SignedIn>
+          <Button variant={"outline"}>
+            <Link href={"/dashboard/files"}>Your Files</Link>
+          </Button>
+        </SignedIn>
         <div className="flex gap-2">
           <OrganizationSwitcher />
           <UserButton />
