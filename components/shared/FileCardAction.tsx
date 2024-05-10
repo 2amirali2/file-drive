@@ -24,7 +24,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useState } from "react"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Doc } from "@/convex/_generated/dataModel"
 import { useToast } from "../ui/use-toast"
@@ -44,6 +44,7 @@ const FileCardAction = ({
   const restoreFile = useMutation(api.files.restoreFile)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const toggleFavorite = useMutation(api.files.toggleFavorite)
+  const me = useQuery(api.users.getMe)
   return (
     <>
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
@@ -109,7 +110,11 @@ const FileCardAction = ({
               </div>
             )}
           </DropdownMenuItem>
-          <Protect role="org:admin" fallback={<></>}>
+          <Protect condition={(check) => {
+            return check({
+              role: "org:admin"
+            }) || file.userId === me?._id;
+          }} fallback={<></>}>
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
