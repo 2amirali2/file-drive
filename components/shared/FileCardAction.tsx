@@ -6,11 +6,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
+  FileIcon,
   MoreVertical,
   StarHalf,
   StarHalfIcon,
   StarIcon,
   TrashIcon,
+  UndoIcon,
 } from "lucide-react"
 import {
   AlertDialog,
@@ -23,11 +25,12 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { useState } from "react"
-import { useMutation } from "convex/react"
+import { useMutation, useQuery } from "convex/react"
 import { api } from "@/convex/_generated/api"
 import { Doc } from "@/convex/_generated/dataModel"
 import { useToast } from "../ui/use-toast"
 import { Protect } from "@clerk/nextjs"
+import { Button } from "../ui/button"
 
 const FileCardAction = ({
   file,
@@ -38,6 +41,7 @@ const FileCardAction = ({
 }) => {
   const { toast } = useToast()
   const deleteFile = useMutation(api.files.deleteFile)
+  const restoreFile = useMutation(api.files.restoreFile)
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const toggleFavorite = useMutation(api.files.toggleFavorite)
   return (
@@ -47,8 +51,8 @@ const FileCardAction = ({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+              This action will mark the file for our deletion process. Files are
+              deleted periodically.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -62,7 +66,7 @@ const FileCardAction = ({
                 toast({
                   variant: "default",
                   title: "File Deleted",
-                  description: "Your file is now gone from system",
+                  description: "Your file will be deleted soon",
                 })
               }}
             >
@@ -77,6 +81,16 @@ const FileCardAction = ({
           <MoreVertical />
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+        <DropdownMenuItem
+            onClick={() => {
+              // open a new tab to the file location on convex
+              window.open(getFileUrl(file.fileId), "_blank")
+            }}
+            className="flex gap-1 items-center cursor-pointer"
+          >
+            <FileIcon className="w-4 h-4" />
+            Download
+          </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
               toggleFavorite({
@@ -95,15 +109,29 @@ const FileCardAction = ({
               </div>
             )}
           </DropdownMenuItem>
-          {/* <Protect role="org:admin" fallback={<></>}> */}
-          <DropdownMenuSeparator />
+          <Protect role="org:admin" fallback={<></>}>
+            <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => setIsConfirmOpen(true)}
-              className="flex gap-1 text-red-600 items-center cursor-pointer"
+              onClick={() => {
+                if (file.shouldDelete) {
+                  restoreFile({ fileId: file._id })
+                } else {
+                  setIsConfirmOpen(true)
+                }
+              }}
+              className="flex gap-1 items-center cursor-pointer"
             >
-              <TrashIcon className="w-4 h-4" /> Delete
+              {file.shouldDelete ? (
+                <div className="flex gap-1 text-green-600 items-center cursor-pointer">
+                  <UndoIcon /> Restore
+                </div>
+              ) : (
+                <div className="flex gap-1 text-red-600 items-center cursor-pointer">
+                  <TrashIcon className="w-4 h-4" /> Delete
+                </div>
+              )}
             </DropdownMenuItem>
-          {/* </Protect> */}
+          </Protect>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

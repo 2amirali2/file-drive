@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "../ui/button"
-import { FileIcon, StarIcon } from "lucide-react"
+import { FileIcon, StarIcon, TrashIcon } from "lucide-react"
 import { usePathname } from "next/navigation"
 import clsx from "clsx"
 
@@ -11,27 +11,38 @@ const SideNav = () => {
 
   return (
     <div className="w-40 flex flex-col gap-4">
-      <Button
-        variant={"link"}
-        className={clsx("flex gap-2", {
-          "text-blue-500": pathname.includes("/dashboard/files"),
-        })}
-      >
-        <Link href={"/dashboard/files"}>
+      <Link href={"/dashboard/files"}>
+        <Button
+          variant={"link"}
+          className={clsx("flex gap-2", {
+            "text-blue-500": pathname.includes("/dashboard/files"),
+          })}
+        >
           <FileIcon /> All Files
-        </Link>
-      </Button>
+        </Button>
+      </Link>
 
-      <Button
-        variant={"link"}
-        className={clsx("flex gap-2", {
-          "text-blue-500": pathname.includes("/dashboard/favorites"),
-        })}
-      >
-        <Link href={"/dashboard/favorites"}>
+      <Link href={"/dashboard/favorites"}>
+        <Button
+          variant={"link"}
+          className={clsx("flex gap-2", {
+            "text-blue-500": pathname.includes("/dashboard/favorites"),
+          })}
+        >
           <StarIcon /> Favorites
-        </Link>
-      </Button>
+        </Button>
+      </Link>
+
+      <Link href={"/dashboard/trash"}>
+        <Button
+          variant={"link"}
+          className={clsx("flex gap-2", {
+            "text-blue-500": pathname.includes("/dashboard/trash"),
+          })}
+        >
+          <TrashIcon /> Trash
+        </Button>
+      </Link>
     </div>
   )
 }
